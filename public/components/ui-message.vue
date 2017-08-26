@@ -1,7 +1,7 @@
 <template>
-    <div class="ui card">
+    <div class="ui card" v-show="isVisible">
+        <i class="close icon" @click="isVisible = false"></i>
         <div class="content">
-            <i class="right floated like icon"></i>
             <div class="header">
                 {{title}}
             </div>
@@ -19,13 +19,14 @@
             "props": ["title", "content"],
             "data": function() {
                 return {
-
+                    isVisible: true
+                }
+            },
+            "methods":{
+                hide: function(){
+                    this.isVisible = false;
                 }
             }
         };
     }());
 </script>
-
-<style scoped>
-
-</style>

@@ -1,15 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/styles/semantic.min.css' />
     <link rel="stylesheet" href='/styles/style.css' />
-  </head>
-  <body>
-    <div id="root" class="ui container">
-      <card-message title="Header" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"></card-message>
-    </div>
-    <script src="/js/vue.js"></script>
-    <script src="/dist/js/bundle.js"></script>
-  </body>
+</head>
+<body>
+<div id="root" class="ui container">
+    <ui-button modal="modal_1">Show Modal</ui-button>
+    <ui-button modal="modal_2">Show Modal 2</ui-button>
+
+    <ui-modal id="modal_1">
+        <ui-modal-header>Title</ui-modal-header>
+        <ui-modal-content><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum?</p></ui-modal-content>
+        <ui-modal-actions>
+            <div class="ui black deny button">
+                Nope
+            </div>
+            <div class="ui positive right labeled icon button">
+                Yep, that's me
+                <i class="checkmark icon"></i>
+            </div>
+        </ui-modal-actions>
+    </ui-modal>
+
+    <ui-modal id="modal_2">
+        <ui-modal-header>Title 2</ui-modal-header>
+        <ui-modal-content>
+            <ui-message-compact>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum?</ui-message-compact>
+        </ui-modal-content>
+        <ui-modal-actions>
+            <div class="ui black deny button">
+                Nope
+            </div>
+            <div class="ui positive right labeled icon button">
+                Yep, that's me
+                <i class="checkmark icon"></i>
+            </div>
+        </ui-modal-actions>
+    </ui-modal>
+</div>
+<script src="/js/vue.js"></script>
+<script src="/dist/js/bundle.js"></script>
+</body>
 </html>
