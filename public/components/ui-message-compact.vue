@@ -1,5 +1,5 @@
 <template>
-    <div><
+    <div>
         <div class="ui compact message" v-show="isVisible">
             <slot></slot>
         </div>

@@ -6,7 +6,7 @@
     const ModalContent = require("../components/ui-modal-content.vue");
     const ModalActions = require("../components/ui-modal-actions.vue");
     const Button = require("../components/ui-button.vue");
-    const MessageCompact = require("../components/ui-button.vue");
+    const MessageCompact = require("../components/ui-message-compact.vue");
     //const eventHub = new Vue();
 
     Vue.component('ui-modal', Modal);
