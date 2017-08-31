@@ -25,6 +25,9 @@
 
     new Vue({
         el: "#root",
+        data: {
+            title: "Now the title is being set through javascript"
+        },
         methods: {
             showModal: function(data){
                 console.log("Event Show Modal:"+ data );

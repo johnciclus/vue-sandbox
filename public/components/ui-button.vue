@@ -1,15 +1,14 @@
 <template>
-    <button class="ui button" @click="showModal"><slot></slot></button>
+    <button class="ui button" :title="title" @click="showModal"><slot></slot></button>
 </template>
 
 <script type="text/javascript">
     (function() {
         "use strict";
         module.exports = {
-            "props": ["modal"],
-            "data": function() {
-                return {
-
+            "props": ["modal, title"],
+            "data": function(){
+                return{
                 }
             },
             "methods": {
