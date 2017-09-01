@@ -2,6 +2,7 @@
     <div>
         <div class="ui compact message" v-show="isVisible">
             <slot></slot>
+            {{ reverseMessage }}
         </div>
     </div>
 </template>
@@ -12,12 +13,18 @@
         module.exports = {
             "data": function() {
                 return {
-                    isVisible: true
+                    isVisible: true,
+                    message: "hello world"
                 }
             },
             "methods":{
                 hide: function(){
                     this.isVisible = false;
+                }
+            },
+            computed: {
+                reverseMessage (){
+                    return this.message.split("").reverse().join("");
                 }
             }
         };

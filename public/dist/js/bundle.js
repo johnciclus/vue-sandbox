@@ -7649,12 +7649,18 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     module.exports = {
         "data": function data() {
             return {
-                isVisible: true
+                isVisible: true,
+                message: "hello world"
             };
         },
         "methods": {
             hide: function hide() {
                 this.isVisible = false;
+            }
+        },
+        computed: {
+            reverseMessage: function reverseMessage() {
+                return this.message.split("").reverse().join("");
             }
         }
     };
@@ -7663,7 +7669,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isVisible),expression:"isVisible"}],staticClass:"ui compact message"},[_vm._t("default")],2)])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isVisible),expression:"isVisible"}],staticClass:"ui compact message"},[_vm._t("default"),_vm._v("\n        "+_vm._s(_vm.reverseMessage)+"\n    ")],2)])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -7762,6 +7768,36 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 })()}
 
 },{"vue":2,"vue-hot-reload-api":1,"vueify/lib/insert-css":3}],10:[function(require,module,exports){
+;(function(){
+"use strict";
+
+(function () {
+    "use strict";
+
+    module.exports = {
+        "data": function data() {
+            return {};
+        }
+    };
+})();
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"ui top attached tabular menu"},[_vm._t("default")],2)}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-012a69d1", __vue__options__)
+  } else {
+    hotAPI.reload("data-v-012a69d1", __vue__options__)
+  }
+})()}
+
+},{"vue":2,"vue-hot-reload-api":1}],11:[function(require,module,exports){
 "use strict";
 
 (function () {
@@ -7773,6 +7809,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     var ModalActions = require("../components/ui-modal-actions.vue");
     var Button = require("../components/ui-button.vue");
     var MessageCompact = require("../components/ui-message-compact.vue");
+    var Tabs = require("../components/ui-tabs.vue");
     //const eventHub = new Vue();
 
     Vue.component('ui-modal', Modal);
@@ -7781,6 +7818,8 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     Vue.component('ui-modal-actions', ModalActions);
     Vue.component('ui-button', Button);
     Vue.component('ui-message-compact', MessageCompact);
+    Vue.component('ui-tabs', Tabs);
+
     /*Vue.mixin({
         data: function () {
             return {
@@ -7792,7 +7831,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     new Vue({
         el: "#root",
         data: {
-            title: "Now the title is being set through javascript"
+            visible: true
         },
         methods: {
             showModal: function showModal(data) {
@@ -7814,6 +7853,6 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     });
 })();
 
-},{"../components/ui-button.vue":4,"../components/ui-message-compact.vue":5,"../components/ui-modal-actions.vue":6,"../components/ui-modal-content.vue":7,"../components/ui-modal-header.vue":8,"../components/ui-modal.vue":9}]},{},[10])
+},{"../components/ui-button.vue":4,"../components/ui-message-compact.vue":5,"../components/ui-modal-actions.vue":6,"../components/ui-modal-content.vue":7,"../components/ui-modal-header.vue":8,"../components/ui-modal.vue":9,"../components/ui-tabs.vue":10}]},{},[11])
 
 //# sourceMappingURL=bundle.js.map

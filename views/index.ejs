@@ -7,7 +7,20 @@
 </head>
 <body>
 <div id="root" class="ui container">
-    <ui-button :title="title" modal="modal">Show Modal</ui-button>
+    <ui-tabs>
+        <a class="active item" data-tab="first">First</a>
+        <a class="item" data-tab="second">Second</a>
+        <a class="item" data-tab="third">Third</a>
+    </ui-tabs>
+    <div class="ui bottom attached active tab segment" data-tab="first">
+        First
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="second">
+        Second
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="third">
+        Third
+    </div>
 </div>
 <script src="/js/vue.js"></script>
 <script src="/dist/js/bundle.js"></script>

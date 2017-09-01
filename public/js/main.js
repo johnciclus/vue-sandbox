@@ -7,6 +7,7 @@
     const ModalActions = require("../components/ui-modal-actions.vue");
     const Button = require("../components/ui-button.vue");
     const MessageCompact = require("../components/ui-message-compact.vue");
+    const Tabs = require("../components/ui-tabs.vue");
     //const eventHub = new Vue();
 
     Vue.component('ui-modal', Modal);
@@ -15,6 +16,8 @@
     Vue.component('ui-modal-actions', ModalActions);
     Vue.component('ui-button', Button);
     Vue.component('ui-message-compact', MessageCompact);
+    Vue.component('ui-tabs', Tabs);
+
     /*Vue.mixin({
         data: function () {
             return {
@@ -26,7 +29,7 @@
     new Vue({
         el: "#root",
         data: {
-            title: "Now the title is being set through javascript"
+            visible: true
         },
         methods: {
             showModal: function(data){
