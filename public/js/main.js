@@ -8,6 +8,7 @@
     const Button = require("../components/ui-button.vue");
     const MessageCompact = require("../components/ui-message-compact.vue");
     const Tabs = require("../components/ui-tabs.vue");
+    const Tab = require("../components/ui-tab.vue");
     //const eventHub = new Vue();
 
     Vue.component('ui-modal', Modal);
@@ -17,6 +18,7 @@
     Vue.component('ui-button', Button);
     Vue.component('ui-message-compact', MessageCompact);
     Vue.component('ui-tabs', Tabs);
+    Vue.component('ui-tab', Tab);
 
     /*Vue.mixin({
         data: function () {

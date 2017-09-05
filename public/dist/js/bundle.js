@@ -7775,8 +7775,12 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     "use strict";
 
     module.exports = {
+        "props": ["title", "data_tab", "active"],
         "data": function data() {
             return {};
+        },
+        "mounted": function mounted() {
+            console.log(this.active);
         }
     };
 })();
@@ -7784,7 +7788,57 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"ui top attached tabular menu"},[_vm._t("default")],2)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"ui bottom attached tab segment",class:{active: _vm.active == 'true'},attrs:{"data-tab":_vm.data_tab}},[_vm._t("default")],2)}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-e7632cdc", __vue__options__)
+  } else {
+    hotAPI.reload("data-v-e7632cdc", __vue__options__)
+  }
+})()}
+
+},{"vue":2,"vue-hot-reload-api":1}],11:[function(require,module,exports){
+;(function(){
+"use strict";
+
+(function () {
+    "use strict";
+
+    module.exports = {
+        "data": function data() {
+            return {
+                tabs: []
+            };
+        },
+        methods: {
+            changeTab: function changeTab(e) {
+                this.$children.map(function (item) {
+                    console.log(item);
+                    item.classList.remove("active");
+                });
+                console.log(e.target.className += " active");
+            }
+        },
+        created: function created() {},
+        mounted: function mounted() {
+            var self = this;
+            self.$children.map(function (item) {
+                self.tabs.push({ title: item.title, class: item.active === "true" ? "active" : "", data_tab: item.data_tab });
+            });
+
+            console.log(self.tabs);
+        }
+    };
+})();
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"ui top attached tabular menu"},_vm._l((_vm.tabs),function(tab){return _c('a',{staticClass:"item",class:tab.class,attrs:{"data-tab":tab.data_tab},on:{"click":_vm.changeTab}},[_vm._v(_vm._s(tab.title))])})),_vm._v(" "),_vm._t("default")],2)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -7797,7 +7851,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   }
 })()}
 
-},{"vue":2,"vue-hot-reload-api":1}],11:[function(require,module,exports){
+},{"vue":2,"vue-hot-reload-api":1}],12:[function(require,module,exports){
 "use strict";
 
 (function () {
@@ -7810,6 +7864,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     var Button = require("../components/ui-button.vue");
     var MessageCompact = require("../components/ui-message-compact.vue");
     var Tabs = require("../components/ui-tabs.vue");
+    var Tab = require("../components/ui-tab.vue");
     //const eventHub = new Vue();
 
     Vue.component('ui-modal', Modal);
@@ -7819,6 +7874,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     Vue.component('ui-button', Button);
     Vue.component('ui-message-compact', MessageCompact);
     Vue.component('ui-tabs', Tabs);
+    Vue.component('ui-tab', Tab);
 
     /*Vue.mixin({
         data: function () {
@@ -7853,6 +7909,6 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     });
 })();
 
-},{"../components/ui-button.vue":4,"../components/ui-message-compact.vue":5,"../components/ui-modal-actions.vue":6,"../components/ui-modal-content.vue":7,"../components/ui-modal-header.vue":8,"../components/ui-modal.vue":9,"../components/ui-tabs.vue":10}]},{},[11])
+},{"../components/ui-button.vue":4,"../components/ui-message-compact.vue":5,"../components/ui-modal-actions.vue":6,"../components/ui-modal-content.vue":7,"../components/ui-modal-header.vue":8,"../components/ui-modal.vue":9,"../components/ui-tab.vue":10,"../components/ui-tabs.vue":11}]},{},[12])
 
 //# sourceMappingURL=bundle.js.map
