@@ -7775,12 +7775,18 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     "use strict";
 
     module.exports = {
-        "props": ["title", "data_tab", "active"],
+        "props": {
+            "title": { required: true },
+            "data_tab": { required: true },
+            "active": { default: false }
+        },
         "data": function data() {
-            return {};
+            return {
+                isActive: false
+            };
         },
         "mounted": function mounted() {
-            console.log(this.active);
+            this.isActive = this.active;
         }
     };
 })();
@@ -7788,7 +7794,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"ui bottom attached tab segment",class:{active: _vm.active == 'true'},attrs:{"data-tab":_vm.data_tab}},[_vm._t("default")],2)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"ui bottom attached tab segment",class:{'active': _vm.isActive},attrs:{"data-tab":_vm.data_tab}},[_vm._t("default")],2)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -7815,22 +7821,14 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
             };
         },
         methods: {
-            changeTab: function changeTab(e) {
-                this.$children.map(function (item) {
-                    console.log(item);
-                    item.classList.remove("active");
+            selectTab: function selectTab(selectedTab) {
+                this.tabs.map(function (tab) {
+                    tab.isActive = tab.title === selectedTab.title;
                 });
-                console.log(e.target.className += " active");
             }
         },
-        created: function created() {},
-        mounted: function mounted() {
-            var self = this;
-            self.$children.map(function (item) {
-                self.tabs.push({ title: item.title, class: item.active === "true" ? "active" : "", data_tab: item.data_tab });
-            });
-
-            console.log(self.tabs);
+        created: function created() {
+            this.tabs = this.$children;
         }
     };
 })();
@@ -7838,7 +7836,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"ui top attached tabular menu"},_vm._l((_vm.tabs),function(tab){return _c('a',{staticClass:"item",class:tab.class,attrs:{"data-tab":tab.data_tab},on:{"click":_vm.changeTab}},[_vm._v(_vm._s(tab.title))])})),_vm._v(" "),_vm._t("default")],2)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"ui top attached tabular menu"},_vm._l((_vm.tabs),function(tab){return _c('a',{staticClass:"item",class:{'active': tab.isActive},attrs:{"data-tab":tab.data_tab},on:{"click":function($event){_vm.selectTab(tab)}}},[_vm._v(_vm._s(tab.title))])})),_vm._v(" "),_vm._t("default")],2)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

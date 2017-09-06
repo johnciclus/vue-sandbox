@@ -1,5 +1,5 @@
 <template>
-    <div class="ui bottom attached tab segment" :class="{active: active == 'true'}" :data-tab="data_tab">
+    <div class="ui bottom attached tab segment" :class="{'active': isActive}" :data-tab="data_tab">
         <slot></slot>
     </div>
 </template>
@@ -8,14 +8,23 @@
     (function() {
         "use strict";
         module.exports = {
-            "props": ["title", "data_tab", "active"],
+            "props": {
+                "title": { required: true},
+                "data_tab": { required: true},
+                "active": { default: false}
+            },
             "data": function() {
                 return {
-
+                    isActive: false
                 }
             },
             "mounted": function(){
-                console.log(this.active);
+                this.isActive = this.active;
+            },
+            "computed": {
+                href: function(){
+                    return "#" + this.title.toLowerCase().replace(/ /g, '-');
+                }
             }
         };
     }());

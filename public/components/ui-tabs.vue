@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="ui top attached tabular menu">
-            <a v-for="tab in tabs" class="item" :class="tab.class" :data-tab="tab.data_tab" @click="changeTab">{{tab.title}}</a>
+            <a v-for="tab in tabs" class="item" :class="{'active': tab.isActive}" :data-tab="tab.data_tab" @click="selectTab(tab)">{{tab.title}}</a>
         </div>
         <slot></slot>
     </div>
@@ -17,24 +17,14 @@
                 }
             },
             methods: {
-                changeTab: function(e){
-                    this.$children.map(function(item){
-                        console.log(item);
-                        //item.classList.remove("active");
+                selectTab: function(selectedTab){
+                    this.tabs.map(function(tab){
+                        tab.isActive = (tab.title === selectedTab.title);
                     });
-                    console.log(e.target.className += " active");
                 }
             },
             created: function(){
-
-            },
-            mounted: function(){
-                var self = this;
-                self.$children.map(function(item){
-                    self.tabs.push({title: item.title, class: item.active === "true" ? "active" : "", data_tab: item.data_tab});
-                });
-
-                console.log(self.tabs);
+                this.tabs = this.$children;
             }
         };
     }());
