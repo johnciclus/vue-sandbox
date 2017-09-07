@@ -1,5 +1,5 @@
 <template>
-    <div class="ui bottom attached tab segment" :class="{'active': isActive}" :data-tab="data_tab">
+    <div class="ui bottom attached tab segment" :class="{'active': isActive}">
         <slot></slot>
     </div>
 </template>
@@ -10,7 +10,6 @@
         module.exports = {
             "props": {
                 "title": { required: true},
-                "data_tab": { required: true},
                 "active": { default: false}
             },
             "data": function() {

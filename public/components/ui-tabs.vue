@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="ui top attached tabular menu">
-            <a v-for="tab in tabs" class="item" :class="{'active': tab.isActive}" :data-tab="tab.data_tab" @click="selectTab(tab)">{{tab.title}}</a>
+            <a :href="tab.href" v-for="tab in tabs" class="item" :class="{'active': tab.isActive}" @click="selectTab(tab)">{{tab.title}}</a>
         </div>
         <slot></slot>
     </div>
