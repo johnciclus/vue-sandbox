@@ -7827,6 +7827,32 @@ module.exports = Vue$3;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],23:[function(require,module,exports){
+var inserted = exports.cache = {}
+
+function noop () {}
+
+exports.insert = function (css) {
+  if (inserted[css]) return noop
+  inserted[css] = true
+
+  var elem = document.createElement('style')
+  elem.setAttribute('type', 'text/css')
+
+  if ('textContent' in elem) {
+    elem.textContent = css
+  } else {
+    elem.styleSheet.cssText = css
+  }
+
+  document.getElementsByTagName('head')[0].appendChild(elem)
+  return function () {
+    document.getElementsByTagName('head')[0].removeChild(elem)
+    inserted[css] = false
+  }
+}
+
+},{}],24:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".view[data-v-7d758578]{\n    width: 100%;\n    height: 200px;\n}")
 ;(function(){
 "use strict";
 
@@ -7834,13 +7860,20 @@ module.exports = Vue$3;
     "use strict";
 
     module.exports = {
+        "props": ["id", "title"],
         "data": function data() {
-            return {};
+            return {
+                count: 0
+            };
         },
-        "methods": {
-            onCouponApplied: function onCouponApplied() {
-                Event.fire("applied");
-            }
+        "methods": {},
+        "created": function created() {
+            var self = this;
+            setInterval(function () {
+                console.log("view " + self.id);
+                console.log(self.count++);
+                self.$emit("changeView", self.id);
+            }, 1000);
         }
     };
 })();
@@ -7848,20 +7881,22 @@ module.exports = Vue$3;
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('input',{attrs:{"placeholder":"Enter your coupon code"},on:{"blur":_vm.onCouponApplied}})}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"view"},[_c('h2',[_vm._v(_vm._s(_vm.title))]),_vm._v(" "),_c('div',[_vm._t("default")],2)])}
 __vue__options__.staticRenderFns = []
+__vue__options__._scopeId = "data-v-7d758578"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
+  module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-6f1a908e", __vue__options__)
+    hotAPI.createRecord("data-v-7d758578", __vue__options__)
   } else {
-    hotAPI.reload("data-v-6f1a908e", __vue__options__)
+    hotAPI.reload("data-v-7d758578", __vue__options__)
   }
 })()}
 
-},{"vue":22,"vue-hot-reload-api":21}],24:[function(require,module,exports){
+},{"vue":22,"vue-hot-reload-api":21,"vueify/lib/insert-css":23}],25:[function(require,module,exports){
 "use strict";
 
 var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
@@ -7877,9 +7912,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 (function () {
     "use strict";
 
-    var Coupon = require("../components/ui-coupon.vue");
+    var View = require("../components/ui-view.vue");
 
-    Vue.component("ui-coupon", Coupon);
+    Vue.component("ui-view", View);
     /*Vue.mixin({
         data: function () {
             return {
@@ -7910,42 +7945,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         return _class;
     }())();
 
-    new Vue({
+    var vue = new Vue({
         el: "#root",
         data: {
-            visible: true,
-            couponApplied: false
+            currentView: "1"
         },
-        methods: {
-            showModal: function showModal(data) {
-                console.log("Event Show Modal:" + data);
-            },
-            onCouponApplied: function onCouponApplied() {
-                this.couponApplied = true;
-            }
-        },
-        created: function created() {
-            var self = this;
-            Event.listen("applied", function () {
-                self.couponApplied = true;
-                alert("Handling it!");
-            });
-        },
+        methods: {},
+        created: function created() {},
         "mounted": function mounted() {
-            this.$on('showModal', function (data) {
-                console.log(data);
-                this.$children.map(function (instance) {
-                    if (instance.$el.id == data.id) {
-                        instance.isVisible = true;
-                        console.log(instance);
-                    }
-                });
+            this.$on("changeView", function () {
+                console.log("changeView");
             });
-            console.log("app mounted");
         }
+    });
+
+    vue.$on("changeView", function () {
+        console.log("changeView");
     });
 })();
 
-},{"../components/ui-coupon.vue":23,"babel-runtime/helpers/classCallCheck":2,"babel-runtime/helpers/createClass":3}]},{},[24])
+},{"../components/ui-view.vue":24,"babel-runtime/helpers/classCallCheck":2,"babel-runtime/helpers/createClass":3}]},{},[25])
 
 //# sourceMappingURL=bundle.js.map

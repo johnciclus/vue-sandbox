@@ -1,8 +1,8 @@
 (function() {
     "use strict";
-    const Coupon = require("../components/ui-coupon.vue");
+    const View = require("../components/ui-view.vue");
 
-    Vue.component("ui-coupon", Coupon);
+    Vue.component("ui-view", View);
     /*Vue.mixin({
         data: function () {
             return {
@@ -24,40 +24,26 @@
         }
     };
 
-    new Vue({
+    let vue = new Vue({
         el: "#root",
         data: {
-            visible: true,
-            couponApplied: false
+            currentView: "1"
         },
         methods: {
-            showModal: function(data){
-                console.log("Event Show Modal:"+ data );
-            },
-            onCouponApplied: function(){
-                this.couponApplied = true;
-            }
+
         },
         created: function(){
-            let self = this;
-          Event.listen("applied", function(){
-              self.couponApplied = true;
-              alert("Handling it!");
-          });
+
         },
         "mounted": function(){
-            this.$on('showModal', function(data) {
-                console.log(data);
-                this.$children.map(function(instance){
-                    if(instance.$el.id == data.id){
-                        instance.isVisible = true;
-                        console.log(instance)
-                    }
-                });
-            });
-            console.log("app mounted");
-
+            this.$on("changeView", function(){
+                console.log("changeView");
+            })
         }
     });
+
+    vue.$on("changeView", function(){
+        console.log("changeView");
+    })
 
 }());
