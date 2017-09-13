@@ -7950,17 +7950,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         data: {
             currentView: "1"
         },
-        methods: {},
+        methods: {
+            change: function change() {
+                console.log("change");
+            }
+        },
         created: function created() {},
         "mounted": function mounted() {
-            this.$on("changeView", function () {
+            this.$on("changeCurrentView", function () {
                 console.log("changeView");
             });
         }
-    });
-
-    vue.$on("changeView", function () {
-        console.log("changeView");
     });
 })();
 

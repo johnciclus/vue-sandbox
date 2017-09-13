@@ -7,7 +7,7 @@
 </head>
 <body>
 <div id="root" class="ui container" >
-    <ui-view id="1" title="View 1" v-if="currentView == '1'"></ui-view>
+    <ui-view id="1" title="View 1" v-if="currentView == '1'" v-on:changeView="change"></ui-view>
     <ui-view id="2" title="View 2" v-if="currentView == '2'"></ui-view>
     <ui-view id="3" title="View 3" v-if="currentView == '3'"></ui-view>
 </div>

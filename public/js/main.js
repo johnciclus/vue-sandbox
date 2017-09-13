@@ -30,20 +30,18 @@
             currentView: "1"
         },
         methods: {
-
+            change: function(){
+                console.log("change");
+            }
         },
         created: function(){
 
         },
         "mounted": function(){
-            this.$on("changeView", function(){
+            this.$on("changeCurrentView", function(){
                 console.log("changeView");
             })
         }
     });
-
-    vue.$on("changeView", function(){
-        console.log("changeView");
-    })
 
 }());

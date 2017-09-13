@@ -26,6 +26,9 @@
                     console.log(self.count++);
                     self.$emit("changeView", self.id);
                 }, 1000);
+            },
+            "destroyed": function(){
+                console.log("destroyed"+this.id);
             }
         };
     }());
