@@ -1,398 +1,259 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = { "default": require("core-js/library/fn/object/define-property"), __esModule: true };
-},{"core-js/library/fn/object/define-property":4}],2:[function(require,module,exports){
-"use strict";
-
-exports.__esModule = true;
-
-exports.default = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-},{}],3:[function(require,module,exports){
-"use strict";
-
-exports.__esModule = true;
-
-var _defineProperty = require("../core-js/object/define-property");
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      (0, _defineProperty2.default)(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
-},{"../core-js/object/define-property":1}],4:[function(require,module,exports){
-require('../../modules/es6.object.define-property');
-var $Object = require('../../modules/_core').Object;
-module.exports = function defineProperty(it, key, desc) {
-  return $Object.defineProperty(it, key, desc);
-};
-
-},{"../../modules/_core":7,"../../modules/es6.object.define-property":20}],5:[function(require,module,exports){
-module.exports = function (it) {
-  if (typeof it != 'function') throw TypeError(it + ' is not a function!');
-  return it;
-};
-
-},{}],6:[function(require,module,exports){
-var isObject = require('./_is-object');
-module.exports = function (it) {
-  if (!isObject(it)) throw TypeError(it + ' is not an object!');
-  return it;
-};
-
-},{"./_is-object":16}],7:[function(require,module,exports){
-var core = module.exports = { version: '2.5.0' };
-if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
-
-},{}],8:[function(require,module,exports){
-// optional / simple context binding
-var aFunction = require('./_a-function');
-module.exports = function (fn, that, length) {
-  aFunction(fn);
-  if (that === undefined) return fn;
-  switch (length) {
-    case 1: return function (a) {
-      return fn.call(that, a);
-    };
-    case 2: return function (a, b) {
-      return fn.call(that, a, b);
-    };
-    case 3: return function (a, b, c) {
-      return fn.call(that, a, b, c);
-    };
-  }
-  return function (/* ...args */) {
-    return fn.apply(that, arguments);
-  };
-};
-
-},{"./_a-function":5}],9:[function(require,module,exports){
-// Thank's IE8 for his funny defineProperty
-module.exports = !require('./_fails')(function () {
-  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-});
-
-},{"./_fails":12}],10:[function(require,module,exports){
-var isObject = require('./_is-object');
-var document = require('./_global').document;
-// typeof document.createElement is 'object' in old IE
-var is = isObject(document) && isObject(document.createElement);
-module.exports = function (it) {
-  return is ? document.createElement(it) : {};
-};
-
-},{"./_global":13,"./_is-object":16}],11:[function(require,module,exports){
-var global = require('./_global');
-var core = require('./_core');
-var ctx = require('./_ctx');
-var hide = require('./_hide');
-var PROTOTYPE = 'prototype';
-
-var $export = function (type, name, source) {
-  var IS_FORCED = type & $export.F;
-  var IS_GLOBAL = type & $export.G;
-  var IS_STATIC = type & $export.S;
-  var IS_PROTO = type & $export.P;
-  var IS_BIND = type & $export.B;
-  var IS_WRAP = type & $export.W;
-  var exports = IS_GLOBAL ? core : core[name] || (core[name] = {});
-  var expProto = exports[PROTOTYPE];
-  var target = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE];
-  var key, own, out;
-  if (IS_GLOBAL) source = name;
-  for (key in source) {
-    // contains in native
-    own = !IS_FORCED && target && target[key] !== undefined;
-    if (own && key in exports) continue;
-    // export native or passed
-    out = own ? target[key] : source[key];
-    // prevent global pollution for namespaces
-    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
-    // bind timers to global for call from export context
-    : IS_BIND && own ? ctx(out, global)
-    // wrap global constructors for prevent change them in library
-    : IS_WRAP && target[key] == out ? (function (C) {
-      var F = function (a, b, c) {
-        if (this instanceof C) {
-          switch (arguments.length) {
-            case 0: return new C();
-            case 1: return new C(a);
-            case 2: return new C(a, b);
-          } return new C(a, b, c);
-        } return C.apply(this, arguments);
-      };
-      F[PROTOTYPE] = C[PROTOTYPE];
-      return F;
-    // make static versions for prototype methods
-    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
-    if (IS_PROTO) {
-      (exports.virtual || (exports.virtual = {}))[key] = out;
-      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
-      if (type & $export.R && expProto && !expProto[key]) hide(expProto, key, out);
-    }
-  }
-};
-// type bitmap
-$export.F = 1;   // forced
-$export.G = 2;   // global
-$export.S = 4;   // static
-$export.P = 8;   // proto
-$export.B = 16;  // bind
-$export.W = 32;  // wrap
-$export.U = 64;  // safe
-$export.R = 128; // real proto method for `library`
-module.exports = $export;
-
-},{"./_core":7,"./_ctx":8,"./_global":13,"./_hide":14}],12:[function(require,module,exports){
-module.exports = function (exec) {
-  try {
-    return !!exec();
-  } catch (e) {
-    return true;
-  }
-};
-
-},{}],13:[function(require,module,exports){
-// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-var global = module.exports = typeof window != 'undefined' && window.Math == Math
-  ? window : typeof self != 'undefined' && self.Math == Math ? self
-  // eslint-disable-next-line no-new-func
-  : Function('return this')();
-if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
-
-},{}],14:[function(require,module,exports){
-var dP = require('./_object-dp');
-var createDesc = require('./_property-desc');
-module.exports = require('./_descriptors') ? function (object, key, value) {
-  return dP.f(object, key, createDesc(1, value));
-} : function (object, key, value) {
-  object[key] = value;
-  return object;
-};
-
-},{"./_descriptors":9,"./_object-dp":17,"./_property-desc":18}],15:[function(require,module,exports){
-module.exports = !require('./_descriptors') && !require('./_fails')(function () {
-  return Object.defineProperty(require('./_dom-create')('div'), 'a', { get: function () { return 7; } }).a != 7;
-});
-
-},{"./_descriptors":9,"./_dom-create":10,"./_fails":12}],16:[function(require,module,exports){
-module.exports = function (it) {
-  return typeof it === 'object' ? it !== null : typeof it === 'function';
-};
-
-},{}],17:[function(require,module,exports){
-var anObject = require('./_an-object');
-var IE8_DOM_DEFINE = require('./_ie8-dom-define');
-var toPrimitive = require('./_to-primitive');
-var dP = Object.defineProperty;
-
-exports.f = require('./_descriptors') ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-  anObject(O);
-  P = toPrimitive(P, true);
-  anObject(Attributes);
-  if (IE8_DOM_DEFINE) try {
-    return dP(O, P, Attributes);
-  } catch (e) { /* empty */ }
-  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-  if ('value' in Attributes) O[P] = Attributes.value;
-  return O;
-};
-
-},{"./_an-object":6,"./_descriptors":9,"./_ie8-dom-define":15,"./_to-primitive":19}],18:[function(require,module,exports){
-module.exports = function (bitmap, value) {
-  return {
-    enumerable: !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable: !(bitmap & 4),
-    value: value
-  };
-};
-
-},{}],19:[function(require,module,exports){
-// 7.1.1 ToPrimitive(input [, PreferredType])
-var isObject = require('./_is-object');
-// instead of the ES6 spec version, we didn't implement @@toPrimitive case
-// and the second argument - flag - preferred type is a string
-module.exports = function (it, S) {
-  if (!isObject(it)) return it;
-  var fn, val;
-  if (S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-  if (typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it))) return val;
-  if (!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-  throw TypeError("Can't convert object to primitive value");
-};
-
-},{"./_is-object":16}],20:[function(require,module,exports){
-var $export = require('./_export');
-// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-$export($export.S + $export.F * !require('./_descriptors'), 'Object', { defineProperty: require('./_object-dp').f });
-
-},{"./_descriptors":9,"./_export":11,"./_object-dp":17}],21:[function(require,module,exports){
-var Vue // late bind
-var version
-var map = window.__VUE_HOT_MAP__ = Object.create(null)
-var installed = false
-var isBrowserify = false
-var initHookName = 'beforeCreate'
-
-exports.install = function (vue, browserify) {
-  if (installed) return
-  installed = true
-
-  Vue = vue.__esModule ? vue.default : vue
-  version = Vue.version.split('.').map(Number)
-  isBrowserify = browserify
-
-  // compat with < 2.0.0-alpha.7
-  if (Vue.config._lifecycleHooks.indexOf('init') > -1) {
-    initHookName = 'init'
-  }
-
-  exports.compatible = version[0] >= 2
-  if (!exports.compatible) {
-    console.warn(
-      '[HMR] You are using a version of vue-hot-reload-api that is ' +
-      'only compatible with Vue.js core ^2.0.0.'
-    )
-    return
-  }
-}
-
-/**
- * Create a record for a hot module, which keeps track of its constructor
- * and instances
- *
- * @param {String} id
- * @param {Object} options
- */
-
-exports.createRecord = function (id, options) {
-  var Ctor = null
-  if (typeof options === 'function') {
-    Ctor = options
-    options = Ctor.options
-  }
-  makeOptionsHot(id, options)
-  map[id] = {
-    Ctor: Vue.extend(options),
-    instances: []
-  }
-}
-
-/**
- * Make a Component options object hot.
- *
- * @param {String} id
- * @param {Object} options
- */
-
-function makeOptionsHot (id, options) {
-  injectHook(options, initHookName, function () {
-    map[id].instances.push(this)
-  })
-  injectHook(options, 'beforeDestroy', function () {
-    var instances = map[id].instances
-    instances.splice(instances.indexOf(this), 1)
-  })
-}
-
-/**
- * Inject a hook to a hot reloadable component so that
- * we can keep track of it.
- *
- * @param {Object} options
- * @param {String} name
- * @param {Function} hook
- */
-
-function injectHook (options, name, hook) {
-  var existing = options[name]
-  options[name] = existing
-    ? Array.isArray(existing)
-      ? existing.concat(hook)
-      : [existing, hook]
-    : [hook]
-}
-
-function tryWrap (fn) {
-  return function (id, arg) {
-    try { fn(id, arg) } catch (e) {
-      console.error(e)
-      console.warn('Something went wrong during Vue component hot-reload. Full reload required.')
-    }
-  }
-}
-
-exports.rerender = tryWrap(function (id, options) {
-  var record = map[id]
-  if (!options) {
-    record.instances.slice().forEach(function (instance) {
-      instance.$forceUpdate()
-    })
-    return
-  }
-  if (typeof options === 'function') {
-    options = options.options
-  }
-  record.Ctor.options.render = options.render
-  record.Ctor.options.staticRenderFns = options.staticRenderFns
-  record.instances.slice().forEach(function (instance) {
-    instance.$options.render = options.render
-    instance.$options.staticRenderFns = options.staticRenderFns
-    instance._staticTrees = [] // reset static trees
-    instance.$forceUpdate()
-  })
-})
-
-exports.reload = tryWrap(function (id, options) {
-  var record = map[id]
-  if (options) {
-    if (typeof options === 'function') {
-      options = options.options
-    }
-    makeOptionsHot(id, options)
-    if (version[1] < 2) {
-      // preserve pre 2.2 behavior for global mixin handling
-      record.Ctor.extendOptions = options
-    }
-    var newCtor = record.Ctor.super.extend(options)
-    record.Ctor.options = newCtor.options
-    record.Ctor.cid = newCtor.cid
-    record.Ctor.prototype = newCtor.prototype
-    if (newCtor.release) {
-      // temporary global mixin strategy used in < 2.0.0-alpha.6
-      newCtor.release()
-    }
-  }
-  record.instances.slice().forEach(function (instance) {
-    if (instance.$vnode && instance.$vnode.context) {
-      instance.$vnode.context.$forceUpdate()
+(function (root, ns, factory) {
+    if (typeof exports === 'object' && typeof module === 'object') {
+        module.exports = factory(require('vue'))
+    } else if (typeof define === 'function' && define.amd) {
+        define(['vue'], factory)
+    } else if (typeof exports === 'object') {
+        exports[ns] = factory(require('vue'))
     } else {
-      console.warn('Root or manually mounted instance modified. Full reload required.')
+        root[ns] = factory(root['Vue'])
     }
-  })
+})(this, 'VirtualScrollList', function (Vue2) {
+    if (typeof Vue2 === 'object' && typeof Vue2.default === 'function') {
+        Vue2 = Vue2.default
+    }
+
+    var innerns = 'vue-virtual-scroll-list'
+
+    var _debounce = function (func, wait, immediate) {
+        var timeout
+        return function () {
+            var context = this
+            var args = arguments
+            var later = function () {
+                timeout = null
+                if (!immediate) {
+                    func.apply(context, args)
+                }
+            }
+            var callNow = immediate && !timeout
+            clearTimeout(timeout)
+            timeout = setTimeout(later, wait)
+            if (callNow) {
+                func.apply(context, args)
+            }
+        }
+    }
+
+    return Vue2.component(innerns, {
+        props: {
+            size: { type: Number, required: true },
+            remain: { type: Number, required: true },
+            rtag: { type: String, default: 'div' },
+            rclass: { type: String, default: '' },
+            wtag: { type: String, default: 'div' },
+            wclass: { type: String, default: '' },
+            start: { type: Number, default: 0 },
+            debounce: { type: Number, default: 0 },
+            bench: Number,
+            totop: Function,
+            tobottom: Function,
+            onscroll: Function
+        },
+
+        created: function () {
+            // An object helping to calculate.
+            this.delta = {
+                start: 0, // Start index.
+                end: 0, // End index.
+                total: 0, // All items count.
+                keeps: 0, // Nums keeping in real dom.
+                bench: 0, // Nums scroll pass should force update.
+                scrollTop: 0, // Store scrollTop.
+                scrollDirect: 'd', // Store scroll direction.
+                viewHeight: 0, // Container wrapper viewport height.
+                allPadding: 0, // All padding of not-render-yet doms.
+                paddingTop: 0, // Container wrapper real padding-top.
+                timeStamp: 0 // Last event fire timestamp avoid compact fire.
+            }
+        },
+
+        watch: {
+            start: function (index) {
+                if (!this.validStart(index)) {
+                    return
+                }
+
+                var delta = this.delta
+                var start, end, scrollTop
+
+                if (this.isOverflow(index)) {
+                    var zone = this.getLastZone()
+                    end = zone.end
+                    start = zone.start
+                    scrollTop = delta.total * this.size
+                } else {
+                    start = index
+                    end = start + delta.keeps
+                    scrollTop = start * this.size
+                }
+
+                delta.end = end
+                delta.start = start >= this.remain ? start : 0
+
+                this.$forceUpdate()
+                Vue2.nextTick(this.setScrollTop.bind(this, scrollTop))
+            }
+        },
+
+        methods: {
+            handleScroll: function (e) {
+                var scrollTop = this.$refs.container.scrollTop
+
+                this.updateZone(scrollTop)
+
+                if (this.onscroll) {
+                    this.onscroll(e, scrollTop)
+                }
+            },
+
+            updateZone: function (offset) {
+                var delta = this.delta
+                var overs = Math.floor(offset / this.size)
+
+                if (!offset && delta.total) {
+                    this.fireEvent('totop')
+                }
+
+                delta.scrollDirect = delta.scrollTop > offset ? 'u' : 'd'
+                delta.scrollTop = offset
+
+                // Calculate the start and end by moving items.
+                var start = overs || 0
+                var end = overs ? (overs + delta.keeps) : delta.keeps
+
+                var isOver = this.isOverflow(start)
+                if (isOver) {
+                    var zone = this.getLastZone()
+                    end = zone.end
+                    start = zone.start
+                }
+
+                // For better performance, if scroll pass items within now bench, do not update.
+                if (!isOver && (overs > delta.start) && (overs - delta.start <= delta.bench)) {
+                    return
+                }
+
+                delta.end = end
+                delta.start = start
+
+                // Call component to update shown items.
+                this.$forceUpdate()
+            },
+
+            // Avoid overflow range.
+            isOverflow: function (start) {
+                var delta = this.delta
+                var overflow = (delta.total - delta.keeps > 0) && (start + this.remain >= delta.total)
+                if (overflow && delta.scrollDirect === 'd') {
+                    this.fireEvent('tobottom')
+                }
+                return overflow
+            },
+
+            // Fire a props event to parent.
+            fireEvent: function (event) {
+                var now = +new Date()
+                if (this[event] && now - this.delta.timeStamp > 30) {
+                    this[event]()
+                    this.delta.timeStamp = now
+                }
+            },
+
+            // Check if given start is valid.
+            validStart: function (start) {
+                var valid = 1
+                if (start !== parseInt(start, 10)) {
+                    valid = 0
+                    console.warn(innerns + ': start ' + start + ' is not an integer.')
+                }
+                if (start < 0 || start > this.delta.total - 1) {
+                    valid = 0
+                    console.warn(innerns + ': start ' + start + ' is an overflow index.')
+                }
+                return !!valid
+            },
+
+            // If overflow range return the last zone.
+            getLastZone: function () {
+                return {
+                    end: this.delta.total,
+                    start: this.delta.total - this.delta.keeps
+                }
+            },
+
+            // Set manual scrollTop
+            setScrollTop: function (scrollTop) {
+                this.$refs.container.scrollTop = scrollTop
+            },
+
+            // Filter the shown items base on start and end.
+            filter: function (slots) {
+                var delta = this.delta
+
+                if (!slots) {
+                    slots = []
+                    delta.start = 0
+                }
+
+                var hasPadding = slots.length > delta.keeps
+                delta.total = slots.length
+                delta.paddingTop = this.size * (hasPadding ? delta.start : 0)
+                delta.allPadding = this.size * (hasPadding ? slots.length - delta.keeps : 0)
+
+                return slots.filter(function (slot, index) {
+                    return index >= delta.start && index <= delta.end
+                })
+            }
+        },
+
+        beforeMount: function () {
+            var delta = this.delta
+            delta.bench = this.bench || this.remain
+            delta.keeps = this.remain + delta.bench
+            delta.viewHeight = this.size * this.remain
+            delta.start = this.start >= this.remain ? this.start : 0
+            delta.end = this.start + this.remain + delta.bench
+        },
+
+        mounted: function () {
+            if (this.validStart(this.start)) {
+                this.setScrollTop(this.start * this.size)
+            }
+        },
+
+        render: function (createElement) {
+            var showList = this.filter(this.$slots.default)
+            var delta = this.delta
+            var dbc = this.debounce
+
+            return createElement(this.rtag, {
+                'ref': 'container',
+                'style': {
+                    'display': 'block',
+                    'overflow-y': 'auto',
+                    'height': delta.viewHeight + 'px'
+                },
+                'on': {
+                    'scroll': dbc ? _debounce(this.handleScroll.bind(this), dbc) : this.handleScroll
+                },
+                'class': this.rclass
+            }, [
+                createElement(this.wtag, {
+                    'style': {
+                        'display': 'block',
+                        'padding-top': delta.paddingTop + 'px',
+                        'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
+                    },
+                    'class': this.wclass
+                }, showList)
+            ])
+        }
+    })
 })
 
-},{}],22:[function(require,module,exports){
+},{"vue":2}],2:[function(require,module,exports){
 (function (global){
 /*!
  * Vue.js v2.4.2
@@ -7826,144 +7687,35 @@ module.exports = Vue$3;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],23:[function(require,module,exports){
-var inserted = exports.cache = {}
-
-function noop () {}
-
-exports.insert = function (css) {
-  if (inserted[css]) return noop
-  inserted[css] = true
-
-  var elem = document.createElement('style')
-  elem.setAttribute('type', 'text/css')
-
-  if ('textContent' in elem) {
-    elem.textContent = css
-  } else {
-    elem.styleSheet.cssText = css
-  }
-
-  document.getElementsByTagName('head')[0].appendChild(elem)
-  return function () {
-    document.getElementsByTagName('head')[0].removeChild(elem)
-    inserted[css] = false
-  }
-}
-
-},{}],24:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".view[data-v-7d758578]{\n    width: 100%;\n    height: 200px;\n}")
-;(function(){
+},{}],3:[function(require,module,exports){
 "use strict";
 
 (function () {
     "use strict";
 
-    module.exports = {
-        "props": ["id", "title"],
-        "data": function data() {
-            return {
-                count: 0
-            };
-        },
-        "methods": {},
-        "created": function created() {
-            var self = this;
-            setInterval(function () {
-                console.log("view " + self.id);
-                console.log(self.count++);
-                self.$emit("changeView", self.id);
-            }, 1000);
-        }
-    };
-})();
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"view"},[_c('h2',[_vm._v(_vm._s(_vm.title))]),_vm._v(" "),_c('div',[_vm._t("default")],2)])}
-__vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-7d758578"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  module.hot.dispose(__vueify_style_dispose__)
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-7d758578", __vue__options__)
-  } else {
-    hotAPI.reload("data-v-7d758578", __vue__options__)
-  }
-})()}
+    var VirtualList = require('vue-virtual-scroll-list');
 
-},{"vue":22,"vue-hot-reload-api":21,"vueify/lib/insert-css":23}],25:[function(require,module,exports){
-"use strict";
+    Vue.component("virtual-list", VirtualList);
 
-var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
+    function createArray(n) {
+        var index = 0;
+        return new Array(n).map(function (item) {
+            return { "id": index++, "value": Math.random() };
+        });
+    }
 
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require("babel-runtime/helpers/createClass");
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-(function () {
-    "use strict";
-
-    var View = require("../components/ui-view.vue");
-
-    Vue.component("ui-view", View);
-    /*Vue.mixin({
-        data: function () {
-            return {
-                eventHub: eventHub
-            }
-        }
-    });*/
-    window.Event = new (function () {
-        function _class() {
-            (0, _classCallCheck3.default)(this, _class);
-
-            this.vue = new Vue();
-        }
-
-        (0, _createClass3.default)(_class, [{
-            key: "fire",
-            value: function fire(event) {
-                var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-                this.vue.$emit(event, data);
-            }
-        }, {
-            key: "listen",
-            value: function listen(event, callback) {
-                this.vue.$on(event, callback);
-            }
-        }]);
-        return _class;
-    }())();
-
-    var vue = new Vue({
+    new Vue({
         el: "#root",
         data: {
-            currentView: "1"
+            items: new Array(10000)
         },
-        methods: {
-            change: function change() {
-                console.log("change");
-            }
-        },
+        methods: {},
+        components: {},
         created: function created() {},
-        "mounted": function mounted() {
-            this.$on("changeCurrentView", function () {
-                console.log("changeView");
-            });
-        }
+        "mounted": function mounted() {}
     });
 })();
 
-},{"../components/ui-view.vue":24,"babel-runtime/helpers/classCallCheck":2,"babel-runtime/helpers/createClass":3}]},{},[25])
+},{"vue-virtual-scroll-list":1}]},{},[3])
 
 //# sourceMappingURL=bundle.js.map

@@ -1,46 +1,32 @@
 (function() {
     "use strict";
-    const View = require("../components/ui-view.vue");
+    const VirtualList = require('vue-virtual-scroll-list');
 
-    Vue.component("ui-view", View);
-    /*Vue.mixin({
-        data: function () {
-            return {
-                eventHub: eventHub
-            }
-        }
-    });*/
-    window.Event = new class{
-        constructor(){
-            this.vue = new Vue();
-        }
+    Vue.component("virtual-list", VirtualList);
 
-        fire (event, data = null){
-            this.vue.$emit(event, data)
-        }
+    function createArray(n){
+        var index = 0;
+        return new Array(n).map(function(item){
+            return {"id": index++, "value": Math.random()}
+        })
+    }
 
-        listen (event, callback){
-            this.vue.$on(event, callback);
-        }
-    };
-
-    let vue = new Vue({
+    new Vue({
         el: "#root",
         data: {
-            currentView: "1"
+            items: new Array(10000)
         },
         methods: {
-            change: function(){
-                console.log("change");
-            }
+
+        },
+        components: {
+
         },
         created: function(){
 
         },
         "mounted": function(){
-            this.$on("changeCurrentView", function(){
-                console.log("changeView");
-            })
+
         }
     });
 
