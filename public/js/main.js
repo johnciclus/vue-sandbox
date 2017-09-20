@@ -16,7 +16,7 @@
     new Vue({
         el: "#root",
         data: {
-            header: [{"alias": "id"}, {"alias": "name"}],
+            header: [{"alias": "ID", "value": "id"}, {"alias": "Name", "value": "name"}],
             users: [{"id": "0", "name": "john"}],
             items: new Array(10000)
         },
