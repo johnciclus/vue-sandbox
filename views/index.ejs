@@ -10,6 +10,8 @@
     <virtual-list :size="10" :remain="50">
         <div v-for="(item, index) of items" :item="item" :key="index">Item: # {{ index }}</div>
     </virtual-list>
+
+    <data-table :header="header" :data="users"></data-table>
 </div>
 <script src="/js/vue.js"></script>
 <script src="/dist/js/bundle.js"></script>

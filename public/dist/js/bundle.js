@@ -1,4 +1,150 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Vue // late bind
+var version
+var map = window.__VUE_HOT_MAP__ = Object.create(null)
+var installed = false
+var isBrowserify = false
+var initHookName = 'beforeCreate'
+
+exports.install = function (vue, browserify) {
+  if (installed) return
+  installed = true
+
+  Vue = vue.__esModule ? vue.default : vue
+  version = Vue.version.split('.').map(Number)
+  isBrowserify = browserify
+
+  // compat with < 2.0.0-alpha.7
+  if (Vue.config._lifecycleHooks.indexOf('init') > -1) {
+    initHookName = 'init'
+  }
+
+  exports.compatible = version[0] >= 2
+  if (!exports.compatible) {
+    console.warn(
+      '[HMR] You are using a version of vue-hot-reload-api that is ' +
+      'only compatible with Vue.js core ^2.0.0.'
+    )
+    return
+  }
+}
+
+/**
+ * Create a record for a hot module, which keeps track of its constructor
+ * and instances
+ *
+ * @param {String} id
+ * @param {Object} options
+ */
+
+exports.createRecord = function (id, options) {
+  var Ctor = null
+  if (typeof options === 'function') {
+    Ctor = options
+    options = Ctor.options
+  }
+  makeOptionsHot(id, options)
+  map[id] = {
+    Ctor: Vue.extend(options),
+    instances: []
+  }
+}
+
+/**
+ * Make a Component options object hot.
+ *
+ * @param {String} id
+ * @param {Object} options
+ */
+
+function makeOptionsHot (id, options) {
+  injectHook(options, initHookName, function () {
+    map[id].instances.push(this)
+  })
+  injectHook(options, 'beforeDestroy', function () {
+    var instances = map[id].instances
+    instances.splice(instances.indexOf(this), 1)
+  })
+}
+
+/**
+ * Inject a hook to a hot reloadable component so that
+ * we can keep track of it.
+ *
+ * @param {Object} options
+ * @param {String} name
+ * @param {Function} hook
+ */
+
+function injectHook (options, name, hook) {
+  var existing = options[name]
+  options[name] = existing
+    ? Array.isArray(existing)
+      ? existing.concat(hook)
+      : [existing, hook]
+    : [hook]
+}
+
+function tryWrap (fn) {
+  return function (id, arg) {
+    try { fn(id, arg) } catch (e) {
+      console.error(e)
+      console.warn('Something went wrong during Vue component hot-reload. Full reload required.')
+    }
+  }
+}
+
+exports.rerender = tryWrap(function (id, options) {
+  var record = map[id]
+  if (!options) {
+    record.instances.slice().forEach(function (instance) {
+      instance.$forceUpdate()
+    })
+    return
+  }
+  if (typeof options === 'function') {
+    options = options.options
+  }
+  record.Ctor.options.render = options.render
+  record.Ctor.options.staticRenderFns = options.staticRenderFns
+  record.instances.slice().forEach(function (instance) {
+    instance.$options.render = options.render
+    instance.$options.staticRenderFns = options.staticRenderFns
+    instance._staticTrees = [] // reset static trees
+    instance.$forceUpdate()
+  })
+})
+
+exports.reload = tryWrap(function (id, options) {
+  var record = map[id]
+  if (options) {
+    if (typeof options === 'function') {
+      options = options.options
+    }
+    makeOptionsHot(id, options)
+    if (version[1] < 2) {
+      // preserve pre 2.2 behavior for global mixin handling
+      record.Ctor.extendOptions = options
+    }
+    var newCtor = record.Ctor.super.extend(options)
+    record.Ctor.options = newCtor.options
+    record.Ctor.cid = newCtor.cid
+    record.Ctor.prototype = newCtor.prototype
+    if (newCtor.release) {
+      // temporary global mixin strategy used in < 2.0.0-alpha.6
+      newCtor.release()
+    }
+  }
+  record.instances.slice().forEach(function (instance) {
+    if (instance.$vnode && instance.$vnode.context) {
+      instance.$vnode.context.$forceUpdate()
+    } else {
+      console.warn('Root or manually mounted instance modified. Full reload required.')
+    }
+  })
+})
+
+},{}],2:[function(require,module,exports){
 (function (root, ns, factory) {
     if (typeof exports === 'object' && typeof module === 'object') {
         module.exports = factory(require('vue'))
@@ -253,7 +399,7 @@
     })
 })
 
-},{"vue":2}],2:[function(require,module,exports){
+},{"vue":3}],3:[function(require,module,exports){
 (function (global){
 /*!
  * Vue.js v2.4.2
@@ -7687,15 +7833,86 @@ module.exports = Vue$3;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+var inserted = exports.cache = {}
+
+function noop () {}
+
+exports.insert = function (css) {
+  if (inserted[css]) return noop
+  inserted[css] = true
+
+  var elem = document.createElement('style')
+  elem.setAttribute('type', 'text/css')
+
+  if ('textContent' in elem) {
+    elem.textContent = css
+  } else {
+    elem.styleSheet.cssText = css
+  }
+
+  document.getElementsByTagName('head')[0].appendChild(elem)
+  return function () {
+    document.getElementsByTagName('head')[0].removeChild(elem)
+    inserted[css] = false
+  }
+}
+
+},{}],5:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".rclass[data-v-61b0af88] {\n        height: 100%;\n    }\n\n    #table[data-v-61b0af88] {\n        width: 90%;\n        height: 90%;\n        font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif;\n        color: black;\n        background-color: white;\n        box-shadow: 2px 2px 2px #d5d9dc;\n        border-radius: 3px;\n        display: flex;\n        flex-direction: column;\n\t\tbox-sizing: border-box;\n    }\n\n    header[data-v-61b0af88] {\n        display: flex;\n        height: 50px;\n        width: 100%;\n        font-family: \"HelveticaNeue-Medium\", \"Helvetica Neue Medium\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif;\n        color: #929AAC;\n        font-size: 11pt;\n        background-color: #f9f9f9;\n    }\n\n    .header-item[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        /*border-right: 1px solid #d3d6dd;*/\n        border-bottom: 1px solid #d3d6dd;\n    }\n\n    .main-item[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        border-bottom: 1px solid #d3d6dd;\n        min-height: 50px;\n        color: #636566;\n        font-size: 11pt;\n        cursor: pointer;\n        max-height: 50px;\n    }\n\n    .main-table[data-v-61b0af88] {\n        height: 100%;\n        display: flex;\n        width: 100%;\n        flex-direction: column;\n        overflow: auto;\n    }\n\n    .column[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        text-align: center;\n    }\n\n    #table > header > div[data-v-61b0af88]:last-child {\n        border-right: none;\n    }\n\n    .options[data-v-61b0af88] {\n        width: 100%;\n        height: 30px;\n    }")
+;(function(){
+"use strict";
+
+(function () {
+    "use strict";
+
+    module.exports = {
+        "props": ["header", "data"],
+        "data": function data() {
+            return {
+                "tableSize": 0
+            };
+        },
+        "methods": {
+            "cardClick": function cardClick(data) {
+                this.$emit("cardClick", data);
+            }
+        },
+        "mounted": function mounted() {
+            this.tableSize = Math.round(this.$refs.mainTable.clientHeight / 50);
+        }
+    };
+})();
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"table"}},[_c('header',_vm._l((_vm.header),function(head){return _c('div',{staticClass:"header-item"},[_vm._v(_vm._s(head.alias.toUpperCase()))])})),_vm._v(" "),_c('div',{ref:"mainTable",staticClass:"main-table"},[_c('virtual-list',{attrs:{"size":50,"remain":13}},_vm._l((_vm.data),function(row){return _c('div',{staticClass:"main-item",on:{"click":function($event){_vm.cardClick(row)}}},_vm._l((_vm.header),function(head){return _c('div',{staticClass:"column"},[_vm._v(_vm._s(row.value[head.value]))])}))}))],1)])}
+__vue__options__.staticRenderFns = []
+__vue__options__._scopeId = "data-v-61b0af88"
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  module.hot.dispose(__vueify_style_dispose__)
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-61b0af88", __vue__options__)
+  } else {
+    hotAPI.reload("data-v-61b0af88", __vue__options__)
+  }
+})()}
+
+},{"vue":3,"vue-hot-reload-api":1,"vueify/lib/insert-css":4}],6:[function(require,module,exports){
 "use strict";
 
 (function () {
     "use strict";
 
     var VirtualList = require('vue-virtual-scroll-list');
+    var DataTable = require("../components/table.vue");
 
     Vue.component("virtual-list", VirtualList);
+    Vue.component("data-table", DataTable);
 
     function createArray(n) {
         var index = 0;
@@ -7707,6 +7924,8 @@ module.exports = Vue$3;
     new Vue({
         el: "#root",
         data: {
+            header: [{ "alias": "id" }, { "alias": "name" }],
+            users: [{ "id": "0", "name": "john" }],
             items: new Array(10000)
         },
         methods: {},
@@ -7716,6 +7935,6 @@ module.exports = Vue$3;
     });
 })();
 
-},{"vue-virtual-scroll-list":1}]},{},[3])
+},{"../components/table.vue":5,"vue-virtual-scroll-list":2}]},{},[6])
 
 //# sourceMappingURL=bundle.js.map

@@ -1,8 +1,10 @@
 (function() {
     "use strict";
     const VirtualList = require('vue-virtual-scroll-list');
+    const DataTable = require("../components/table.vue");
 
     Vue.component("virtual-list", VirtualList);
+    Vue.component("data-table", DataTable);
 
     function createArray(n){
         var index = 0;
@@ -14,6 +16,8 @@
     new Vue({
         el: "#root",
         data: {
+            header: [{"alias": "id"}, {"alias": "name"}],
+            users: [{"id": "0", "name": "john"}],
             items: new Array(10000)
         },
         methods: {
