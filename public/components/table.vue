@@ -7,7 +7,7 @@
 
             <virtual-list :size="50" :remain="13">
                 <div v-for="row in data" class="main-item" @click="cardClick(row)">
-                    <div class="column" v-for="head in header">{{row.value[head.value]}}</div>
+                    <div class="column" v-for="head in header">{{row[head.value]}}</div>
                 </div>
             </virtual-list>
 

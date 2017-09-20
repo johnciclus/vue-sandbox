@@ -7887,7 +7887,7 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".rclass[
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"table"}},[_c('header',_vm._l((_vm.header),function(head){return _c('div',{staticClass:"header-item"},[_vm._v(_vm._s(head.alias.toUpperCase()))])})),_vm._v(" "),_c('div',{ref:"mainTable",staticClass:"main-table"},[_c('virtual-list',{attrs:{"size":50,"remain":13}},_vm._l((_vm.data),function(row){return _c('div',{staticClass:"main-item",on:{"click":function($event){_vm.cardClick(row)}}},_vm._l((_vm.header),function(head){return _c('div',{staticClass:"column"},[_vm._v(_vm._s(row.value[head.value]))])}))}))],1)])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"table"}},[_c('header',_vm._l((_vm.header),function(head){return _c('div',{staticClass:"header-item"},[_vm._v(_vm._s(head.alias.toUpperCase()))])})),_vm._v(" "),_c('div',{ref:"mainTable",staticClass:"main-table"},[_c('virtual-list',{attrs:{"size":50,"remain":13}},_vm._l((_vm.data),function(row){return _c('div',{staticClass:"main-item",on:{"click":function($event){_vm.cardClick(row)}}},_vm._l((_vm.header),function(head){return _c('div',{staticClass:"column"},[_vm._v(_vm._s(row[head.value]))])}))}))],1)])}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-61b0af88"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -7924,7 +7924,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     new Vue({
         el: "#root",
         data: {
-            header: [{ "alias": "id" }, { "alias": "name" }],
+            header: [{ "alias": "ID", "value": "id" }, { "alias": "Name", "value": "name" }],
             users: [{ "id": "0", "name": "john" }],
             items: new Array(10000)
         },
