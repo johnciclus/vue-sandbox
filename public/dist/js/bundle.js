@@ -7920,13 +7920,17 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
             return { "id": index++, "value": Math.random() };
         });
     }
+    var array = [];
+    for (var i = 0; i < 10000; i++) {
+        array.push({ id: i, name: i });
+    }
 
     new Vue({
         el: "#root",
         data: {
             header: [{ "alias": "ID", "value": "id" }, { "alias": "Name", "value": "name" }],
             users: [{ "id": "0", "name": "john" }],
-            items: new Array(10000)
+            items: array
         },
         methods: {},
         components: {},
