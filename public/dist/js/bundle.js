@@ -7914,15 +7914,9 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     Vue.component("virtual-list", VirtualList);
     Vue.component("data-table", DataTable);
 
-    function createArray(n) {
-        var index = 0;
-        return new Array(n).map(function (item) {
-            return { "id": index++, "value": Math.random() };
-        });
-    }
     var array = [];
     for (var i = 0; i < 10000; i++) {
-        array.push({ id: i, name: i });
+        array.push({ id: i, name: Math.random() });
     }
 
     new Vue({
