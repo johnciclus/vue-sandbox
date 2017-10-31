@@ -1,30 +1,53 @@
 (function() {
     "use strict";
-    const VirtualList = require('vue-virtual-scroll-list');
-    const DataTable = require("../components/table.vue");
+    const Tree = require("../components/ui-tree.vue");
 
-    Vue.component("virtual-list", VirtualList);
-    Vue.component("data-table", DataTable);
+    Vue.component("tree", Tree);
 
-    var array = [];
-    for (var i=0; i<10000; i++){
-        array.push({id: i, name: Math.random()})
+    var data = {
+        name: 'My Tree',
+        children: [
+            { name: 'hello' },
+            { name: 'wat' },
+            {
+                name: 'child folder',
+                children: [
+                    {
+                        name: 'child folder',
+                        children: [
+                            { name: 'hello' },
+                            { name: 'wat' }
+                        ]
+                    },
+                    { name: 'hello' },
+                    { name: 'wat' },
+                    {
+                        name: 'child folder',
+                        children: [
+                            { name: 'hello' },
+                            { name: 'wat' }
+                        ]
+                    }
+                ]
+            }
+        ]
     }
 
     new Vue({
-        el: "#root",
-        data: {
-            header: [{"alias": "ID", "value": "id"}, {"alias": "Name", "value": "name"}],
-            users: [{"id": "0", "name": "john"}],
-            items:  array
-        },
-        methods: {
+        "el": "#root",
+        "props": {
 
         },
-        components: {
+        "data": {
+            "treeData": data
+        },
+        "methods": {
 
         },
-        created: function(){
+        "components": {
+
+        },
+        "created": function(){
 
         },
         "mounted": function(){

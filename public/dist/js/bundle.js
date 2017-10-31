@@ -145,261 +145,6 @@ exports.reload = tryWrap(function (id, options) {
 })
 
 },{}],2:[function(require,module,exports){
-(function (root, ns, factory) {
-    if (typeof exports === 'object' && typeof module === 'object') {
-        module.exports = factory(require('vue'))
-    } else if (typeof define === 'function' && define.amd) {
-        define(['vue'], factory)
-    } else if (typeof exports === 'object') {
-        exports[ns] = factory(require('vue'))
-    } else {
-        root[ns] = factory(root['Vue'])
-    }
-})(this, 'VirtualScrollList', function (Vue2) {
-    if (typeof Vue2 === 'object' && typeof Vue2.default === 'function') {
-        Vue2 = Vue2.default
-    }
-
-    var innerns = 'vue-virtual-scroll-list'
-
-    var _debounce = function (func, wait, immediate) {
-        var timeout
-        return function () {
-            var context = this
-            var args = arguments
-            var later = function () {
-                timeout = null
-                if (!immediate) {
-                    func.apply(context, args)
-                }
-            }
-            var callNow = immediate && !timeout
-            clearTimeout(timeout)
-            timeout = setTimeout(later, wait)
-            if (callNow) {
-                func.apply(context, args)
-            }
-        }
-    }
-
-    return Vue2.component(innerns, {
-        props: {
-            size: { type: Number, required: true },
-            remain: { type: Number, required: true },
-            rtag: { type: String, default: 'div' },
-            rclass: { type: String, default: '' },
-            wtag: { type: String, default: 'div' },
-            wclass: { type: String, default: '' },
-            start: { type: Number, default: 0 },
-            debounce: { type: Number, default: 0 },
-            bench: Number,
-            totop: Function,
-            tobottom: Function,
-            onscroll: Function
-        },
-
-        created: function () {
-            // An object helping to calculate.
-            this.delta = {
-                start: 0, // Start index.
-                end: 0, // End index.
-                total: 0, // All items count.
-                keeps: 0, // Nums keeping in real dom.
-                bench: 0, // Nums scroll pass should force update.
-                scrollTop: 0, // Store scrollTop.
-                scrollDirect: 'd', // Store scroll direction.
-                viewHeight: 0, // Container wrapper viewport height.
-                allPadding: 0, // All padding of not-render-yet doms.
-                paddingTop: 0, // Container wrapper real padding-top.
-                timeStamp: 0 // Last event fire timestamp avoid compact fire.
-            }
-        },
-
-        watch: {
-            start: function (index) {
-                if (!this.validStart(index)) {
-                    return
-                }
-
-                var delta = this.delta
-                var start, end, scrollTop
-
-                if (this.isOverflow(index)) {
-                    var zone = this.getLastZone()
-                    end = zone.end
-                    start = zone.start
-                    scrollTop = delta.total * this.size
-                } else {
-                    start = index
-                    end = start + delta.keeps
-                    scrollTop = start * this.size
-                }
-
-                delta.end = end
-                delta.start = start >= this.remain ? start : 0
-
-                this.$forceUpdate()
-                Vue2.nextTick(this.setScrollTop.bind(this, scrollTop))
-            }
-        },
-
-        methods: {
-            handleScroll: function (e) {
-                var scrollTop = this.$refs.container.scrollTop
-
-                this.updateZone(scrollTop)
-
-                if (this.onscroll) {
-                    this.onscroll(e, scrollTop)
-                }
-            },
-
-            updateZone: function (offset) {
-                var delta = this.delta
-                var overs = Math.floor(offset / this.size)
-
-                if (!offset && delta.total) {
-                    this.fireEvent('totop')
-                }
-
-                delta.scrollDirect = delta.scrollTop > offset ? 'u' : 'd'
-                delta.scrollTop = offset
-
-                // Calculate the start and end by moving items.
-                var start = overs || 0
-                var end = overs ? (overs + delta.keeps) : delta.keeps
-
-                var isOver = this.isOverflow(start)
-                if (isOver) {
-                    var zone = this.getLastZone()
-                    end = zone.end
-                    start = zone.start
-                }
-
-                // For better performance, if scroll pass items within now bench, do not update.
-                if (!isOver && (overs > delta.start) && (overs - delta.start <= delta.bench)) {
-                    return
-                }
-
-                delta.end = end
-                delta.start = start
-
-                // Call component to update shown items.
-                this.$forceUpdate()
-            },
-
-            // Avoid overflow range.
-            isOverflow: function (start) {
-                var delta = this.delta
-                var overflow = (delta.total - delta.keeps > 0) && (start + this.remain >= delta.total)
-                if (overflow && delta.scrollDirect === 'd') {
-                    this.fireEvent('tobottom')
-                }
-                return overflow
-            },
-
-            // Fire a props event to parent.
-            fireEvent: function (event) {
-                var now = +new Date()
-                if (this[event] && now - this.delta.timeStamp > 30) {
-                    this[event]()
-                    this.delta.timeStamp = now
-                }
-            },
-
-            // Check if given start is valid.
-            validStart: function (start) {
-                var valid = 1
-                if (start !== parseInt(start, 10)) {
-                    valid = 0
-                    console.warn(innerns + ': start ' + start + ' is not an integer.')
-                }
-                if (start < 0 || start > this.delta.total - 1) {
-                    valid = 0
-                    console.warn(innerns + ': start ' + start + ' is an overflow index.')
-                }
-                return !!valid
-            },
-
-            // If overflow range return the last zone.
-            getLastZone: function () {
-                return {
-                    end: this.delta.total,
-                    start: this.delta.total - this.delta.keeps
-                }
-            },
-
-            // Set manual scrollTop
-            setScrollTop: function (scrollTop) {
-                this.$refs.container.scrollTop = scrollTop
-            },
-
-            // Filter the shown items base on start and end.
-            filter: function (slots) {
-                var delta = this.delta
-
-                if (!slots) {
-                    slots = []
-                    delta.start = 0
-                }
-
-                var hasPadding = slots.length > delta.keeps
-                delta.total = slots.length
-                delta.paddingTop = this.size * (hasPadding ? delta.start : 0)
-                delta.allPadding = this.size * (hasPadding ? slots.length - delta.keeps : 0)
-
-                return slots.filter(function (slot, index) {
-                    return index >= delta.start && index <= delta.end
-                })
-            }
-        },
-
-        beforeMount: function () {
-            var delta = this.delta
-            delta.bench = this.bench || this.remain
-            delta.keeps = this.remain + delta.bench
-            delta.viewHeight = this.size * this.remain
-            delta.start = this.start >= this.remain ? this.start : 0
-            delta.end = this.start + this.remain + delta.bench
-        },
-
-        mounted: function () {
-            if (this.validStart(this.start)) {
-                this.setScrollTop(this.start * this.size)
-            }
-        },
-
-        render: function (createElement) {
-            var showList = this.filter(this.$slots.default)
-            var delta = this.delta
-            var dbc = this.debounce
-
-            return createElement(this.rtag, {
-                'ref': 'container',
-                'style': {
-                    'display': 'block',
-                    'overflow-y': 'auto',
-                    'height': delta.viewHeight + 'px'
-                },
-                'on': {
-                    'scroll': dbc ? _debounce(this.handleScroll.bind(this), dbc) : this.handleScroll
-                },
-                'class': this.rclass
-            }, [
-                createElement(this.wtag, {
-                    'style': {
-                        'display': 'block',
-                        'padding-top': delta.paddingTop + 'px',
-                        'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
-                    },
-                    'class': this.wclass
-                }, showList)
-            ])
-        }
-    })
-})
-
-},{"vue":3}],3:[function(require,module,exports){
 (function (global){
 /*!
  * Vue.js v2.4.2
@@ -7833,7 +7578,7 @@ module.exports = Vue$3;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 function noop () {}
@@ -7858,8 +7603,8 @@ exports.insert = function (css) {
   }
 }
 
-},{}],5:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".rclass[data-v-61b0af88] {\n        height: 100%;\n    }\n\n    #table[data-v-61b0af88] {\n        width: 90%;\n        height: 90%;\n        font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif;\n        color: black;\n        background-color: white;\n        box-shadow: 2px 2px 2px #d5d9dc;\n        border-radius: 3px;\n        display: flex;\n        flex-direction: column;\n\t\tbox-sizing: border-box;\n    }\n\n    header[data-v-61b0af88] {\n        display: flex;\n        height: 50px;\n        width: 100%;\n        font-family: \"HelveticaNeue-Medium\", \"Helvetica Neue Medium\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif;\n        color: #929AAC;\n        font-size: 11pt;\n        background-color: #f9f9f9;\n    }\n\n    .header-item[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        /*border-right: 1px solid #d3d6dd;*/\n        border-bottom: 1px solid #d3d6dd;\n    }\n\n    .main-item[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        border-bottom: 1px solid #d3d6dd;\n        min-height: 50px;\n        color: #636566;\n        font-size: 11pt;\n        cursor: pointer;\n        max-height: 50px;\n    }\n\n    .main-table[data-v-61b0af88] {\n        height: 100%;\n        display: flex;\n        width: 100%;\n        flex-direction: column;\n        overflow: auto;\n    }\n\n    .column[data-v-61b0af88] {\n        height: 100%;\n        width: 100%;\n        display: flex;\n        flex: 1;\n        justify-content: center;\n        align-items: center;\n        text-align: center;\n    }\n\n    #table > header > div[data-v-61b0af88]:last-child {\n        border-right: none;\n    }\n\n    .options[data-v-61b0af88] {\n        width: 100%;\n        height: 30px;\n    }")
+},{}],4:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body[data-v-ee64cc1e] {\n    font-family: Menlo, Consolas, monospace;\n    color: #444;\n}\n.item[data-v-ee64cc1e] {\n    cursor: pointer;\n}\n.bold[data-v-ee64cc1e] {\n    font-weight: bold;\n}\nul[data-v-ee64cc1e] {\n    padding-left: 1em;\n    line-height: 1.5em;\n    list-style-type: dot;\n}")
 ;(function(){
 "use strict";
 
@@ -7867,19 +7612,37 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".rclass[
     "use strict";
 
     module.exports = {
-        "props": ["header", "data"],
+        "props": {
+            "model": Object
+        },
         "data": function data() {
             return {
-                "tableSize": 0
+                "open": false
             };
         },
-        "methods": {
-            "cardClick": function cardClick(data) {
-                this.$emit("cardClick", data);
+        "computed": {
+            isFolder: function isFolder() {
+                return this.model.children && this.model.children.length;
             }
         },
-        "mounted": function mounted() {
-            this.tableSize = Math.round(this.$refs.mainTable.clientHeight / 50);
+        "methods": {
+            "toggle": function toggle() {
+                if (this.isFolder) {
+                    this.open = !this.open;
+                }
+            },
+            "changeType": function changeType() {
+                if (!this.isFolder) {
+                    Vue.set(this.model, 'children', []);
+                    this.addChild();
+                    this.open = true;
+                }
+            },
+            "addChild": function addChild() {
+                this.model.children.push({
+                    name: 'new stuff'
+                });
+            }
         }
     };
 })();
@@ -7887,52 +7650,58 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".rclass[
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"table"}},[_c('header',_vm._l((_vm.header),function(head){return _c('div',{staticClass:"header-item"},[_vm._v(_vm._s(head.alias.toUpperCase()))])})),_vm._v(" "),_c('div',{ref:"mainTable",staticClass:"main-table"},[_c('virtual-list',{attrs:{"size":50,"remain":13}},_vm._l((_vm.data),function(row){return _c('div',{staticClass:"main-item",on:{"click":function($event){_vm.cardClick(row)}}},_vm._l((_vm.header),function(head){return _c('div',{staticClass:"column"},[_vm._v(_vm._s(row[head.value]))])}))}))],1)])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',[_c('div',{class:{bold: _vm.isFolder},on:{"click":_vm.toggle,"dblclick":_vm.changeType}},[_vm._v("\n            "+_vm._s(_vm.model.name)+"\n        "),(_vm.isFolder)?_c('span',[_vm._v("["+_vm._s(_vm.open ? '-' : '+')+"]")]):_vm._e()]),_vm._v(" "),(_vm.isFolder)?_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.open),expression:"open"}]},[_vm._l((_vm.model.children),function(model){return _c('tree',{staticClass:"item",attrs:{"model":model}})}),_vm._v(" "),_c('li',{staticClass:"add",on:{"click":_vm.addChild}},[_vm._v("+")])],2):_vm._e()])}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-61b0af88"
+__vue__options__._scopeId = "data-v-ee64cc1e"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-61b0af88", __vue__options__)
+    hotAPI.createRecord("data-v-ee64cc1e", __vue__options__)
   } else {
-    hotAPI.reload("data-v-61b0af88", __vue__options__)
+    hotAPI.reload("data-v-ee64cc1e", __vue__options__)
   }
 })()}
 
-},{"vue":3,"vue-hot-reload-api":1,"vueify/lib/insert-css":4}],6:[function(require,module,exports){
+},{"vue":2,"vue-hot-reload-api":1,"vueify/lib/insert-css":3}],5:[function(require,module,exports){
 "use strict";
 
 (function () {
     "use strict";
 
-    var VirtualList = require('vue-virtual-scroll-list');
-    var DataTable = require("../components/table.vue");
+    var Tree = require("../components/ui-tree.vue");
 
-    Vue.component("virtual-list", VirtualList);
-    Vue.component("data-table", DataTable);
+    Vue.component("tree", Tree);
 
-    var array = [];
-    for (var i = 0; i < 10000; i++) {
-        array.push({ id: i, name: Math.random() });
-    }
+    var data = {
+        name: 'My Tree',
+        children: [{ name: 'hello' }, { name: 'wat' }, {
+            name: 'child folder',
+            children: [{
+                name: 'child folder',
+                children: [{ name: 'hello' }, { name: 'wat' }]
+            }, { name: 'hello' }, { name: 'wat' }, {
+                name: 'child folder',
+                children: [{ name: 'hello' }, { name: 'wat' }]
+            }]
+        }]
+    };
 
     new Vue({
-        el: "#root",
-        data: {
-            header: [{ "alias": "ID", "value": "id" }, { "alias": "Name", "value": "name" }],
-            users: [{ "id": "0", "name": "john" }],
-            items: array
+        "el": "#root",
+        "props": {},
+        "data": {
+            "treeData": data
         },
-        methods: {},
-        components: {},
-        created: function created() {},
+        "methods": {},
+        "components": {},
+        "created": function created() {},
         "mounted": function mounted() {}
     });
 })();
 
-},{"../components/table.vue":5,"vue-virtual-scroll-list":2}]},{},[6])
+},{"../components/ui-tree.vue":4}]},{},[5])
 
 //# sourceMappingURL=bundle.js.map
