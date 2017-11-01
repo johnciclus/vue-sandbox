@@ -7604,7 +7604,7 @@ exports.insert = function (css) {
 }
 
 },{}],4:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body[data-v-ee64cc1e] {\n    font-family: Menlo, Consolas, monospace;\n    color: #444;\n}\n.item[data-v-ee64cc1e] {\n    cursor: pointer;\n}\n.bold[data-v-ee64cc1e] {\n    font-weight: bold;\n}\nul[data-v-ee64cc1e] {\n    padding-left: 1em;\n    line-height: 1.5em;\n    list-style-type: dot;\n}")
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body[data-v-c8a0e9c2] {\n    font-family: Menlo, Consolas, monospace;\n    color: #444;\n}\nul[data-v-c8a0e9c2] {\n    padding-left: 1em;\n    line-height: 1.5em;\n    list-style-type: none;\n}\n.item[data-v-c8a0e9c2] {\n    cursor: pointer;\n}\n.bold[data-v-c8a0e9c2] {\n    font-weight: bold;\n}")
 ;(function(){
 "use strict";
 
@@ -7613,35 +7613,32 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body[dat
 
     module.exports = {
         "props": {
-            "model": Object
+            "model": Array
         },
         "data": function data() {
             return {
-                "open": false
+                "status": this.model.map(function () {
+                    return false;
+                })
             };
         },
-        "computed": {
-            isFolder: function isFolder() {
-                return this.model.children && this.model.children.length;
-            }
-        },
         "methods": {
-            "toggle": function toggle() {
-                if (this.isFolder) {
-                    this.open = !this.open;
+            "toggle": function toggle(item, index) {
+                if (this.isFolder(item)) {
+                    this.status = this.status.map(function (element, i) {
+                        if (i === index) {
+                            return !element;
+                        } else {
+                            return element;
+                        }
+                    });
                 }
             },
-            "changeType": function changeType() {
-                if (!this.isFolder) {
-                    Vue.set(this.model, 'children', []);
-                    this.addChild();
-                    this.open = true;
-                }
+            "isFolder": function isFolder(item) {
+                return item.children && item.children.length;
             },
-            "addChild": function addChild() {
-                this.model.children.push({
-                    name: 'new stuff'
-                });
+            "isItem": function isItem(item) {
+                return !item.hasOwnProperty("children");
             }
         }
     };
@@ -7650,18 +7647,18 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body[dat
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',[_c('div',{class:{bold: _vm.isFolder},on:{"click":_vm.toggle,"dblclick":_vm.changeType}},[_vm._v("\n            "+_vm._s(_vm.model.name)+"\n        "),(_vm.isFolder)?_c('span',[_vm._v("["+_vm._s(_vm.open ? '-' : '+')+"]")]):_vm._e()]),_vm._v(" "),(_vm.isFolder)?_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.open),expression:"open"}]},[_vm._l((_vm.model.children),function(model){return _c('tree',{staticClass:"item",attrs:{"model":model}})}),_vm._v(" "),_c('li',{staticClass:"add",on:{"click":_vm.addChild}},[_vm._v("+")])],2):_vm._e()])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',{staticClass:"item"},_vm._l((_vm.model),function(item,index){return _c('li',{staticClass:"item",on:{"click":function($event){$event.stopPropagation();_vm.toggle(item, index)}}},[_c('div',{class:{bold: _vm.isFolder(item)}},[(_vm.isItem(item))?_c('input',{attrs:{"type":"checkbox","id":index}}):_vm._e(),_vm._v(" "),_c('label',[_vm._v(_vm._s(item.name))]),_vm._v(" "),(_vm.isFolder(item))?_c('span',[_vm._v("["+_vm._s(_vm.status[index] ? '-' : '+')+"]")]):_vm._e()]),_vm._v(" "),(_vm.isFolder(item))?_c('tree',{directives:[{name:"show",rawName:"v-show",value:(_vm.status[index]),expression:"status[index]"}],staticClass:"item",attrs:{"model":item.children}}):_vm._e()],1)}))}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-ee64cc1e"
+__vue__options__._scopeId = "data-v-c8a0e9c2"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-ee64cc1e", __vue__options__)
+    hotAPI.createRecord("data-v-c8a0e9c2", __vue__options__)
   } else {
-    hotAPI.reload("data-v-ee64cc1e", __vue__options__)
+    hotAPI.reload("data-v-c8a0e9c2", __vue__options__)
   }
 })()}
 
@@ -7671,23 +7668,21 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 (function () {
     "use strict";
 
-    var Tree = require("../components/ui-tree.vue");
+    var Tree = require("../components/cts-tree.vue");
 
     Vue.component("tree", Tree);
 
-    var data = {
-        name: 'My Tree',
-        children: [{ name: 'hello' }, { name: 'wat' }, {
-            name: 'child folder',
-            children: [{
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }]
-            }, { name: 'hello' }, { name: 'wat' }, {
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }]
-            }]
+    var data = [{
+        name: 'Tree 1',
+        children: [{ name: 'child folder1',
+            children: [{ name: 'child folder' }, { name: 'hello' }, { name: 'wat' }, { name: 'child folder' }]
         }]
-    };
+    }, {
+        name: 'Tree 2',
+        children: [{ name: 'hello2' }, { name: 'wat2' }, { name: 'child folder2',
+            children: [{ name: 'child folder' }, { name: 'hello' }, { name: 'wat' }, { name: 'child folder' }]
+        }]
+    }];
 
     new Vue({
         "el": "#root",
@@ -7702,6 +7697,6 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     });
 })();
 
-},{"../components/ui-tree.vue":4}]},{},[5])
+},{"../components/cts-tree.vue":4}]},{},[5])
 
 //# sourceMappingURL=bundle.js.map
